@@ -1,0 +1,149 @@
+{
+  "name": "Inflow Error Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "sendTo": "pavi.jul91@gmail.com",
+        "subject": "=N8N Error for uuid {{ $json.uuid }}",
+        "message": "=Message: {{ $json.execution.error.message }}, \nStack Trace: {{ $json.execution.error.stack }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        -272
+      ],
+      "id": "042804e0-09e2-4b7a-bd59-76728b61f2d8",
+      "name": "Send a message",
+      "webhookId": "5345b0a5-3862-4e06-b77d-e07c4ce7b6c2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "K9F0WWNHjNRneb6H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "uuid"
+            },
+            {
+              "name": "ProcessingStatus"
+            },
+            {
+              "name": "ErrorDesc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        -144
+      ],
+      "id": "1b7d3da4-e819-4156-8f1b-4afa8e455698",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "CustomerReviews1",
+        "updateKey": "uuid",
+        "columns": "uuid,ProcessingStatus,ErrorDesc"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -144
+      ],
+      "id": "9b7f5394-505a-4445-9a57-df10904bc16d",
+      "name": "Microsoft SQL",
+      "credentials": {
+        "microsoftSql": {
+          "id": "96Sa8G94ZX2Rtefh",
+          "name": "Microsoft SQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09SQUE6FBR",
+          "mode": "list",
+          "cachedResultName": "all-tscapstone"
+        },
+        "text": "=N8N Group3 Error Flow Trigerred.  \nPlease look into the Error Message\nUUID-{{ $json.uuid }}\nProcessingStatus-{{ $json.ProcessingStatus }}\nError Reason-{{ $json.ErrorDesc }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        528,
+        -64
+      ],
+      "id": "06deb5e6-a55a-47fc-ae12-a8d79ba1cc41",
+      "name": "Slack Integration",
+      "webhookId": "30690479-a80f-4f4c-931f-ef94b1e79fc5",
+      "credentials": {
+        "slackApi": {
+          "id": "ZKLvR92HHLuuhZHg",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Microsoft SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft SQL": {
+      "main": [
+        [
+          {
+            "node": "Slack Integration",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4ad9eca5-4582-429f-9c3a-8b17792af523",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eca38596c4162265cca967c11a28945c1a97274c04b8ba725ccf29fb44bc4fc5"
+  },
+  "id": "hSjDaGneOtjRRKav",
+  "tags": []
+}

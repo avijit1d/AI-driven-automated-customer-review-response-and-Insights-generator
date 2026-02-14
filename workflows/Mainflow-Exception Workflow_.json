@@ -1,0 +1,102 @@
+{
+  "name": "Mainflow-Exception Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -48
+      ],
+      "id": "91e59162-1c4b-48f7-bf4d-df0f9d9be0a5",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "pavi.jul91@gmail.com",
+        "subject": "N8N Error",
+        "message": "=Message: {{ $json.execution.error.message }}, \nStack Trace: {{ $json.execution.error.stack }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        -208
+      ],
+      "id": "529259c6-95a3-4af9-b233-4493eca60af9",
+      "name": "Send a message",
+      "webhookId": "b34a6087-dcb9-4a09-a782-61bf0a17469f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "K9F0WWNHjNRneb6H",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09SQUE6FBR",
+          "mode": "list",
+          "cachedResultName": "all-tscapstone"
+        },
+        "text": "N8n workflow of group 3 in Error. Error workflow trigerred",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        528,
+        16
+      ],
+      "id": "c7bf1c94-9ab9-4285-9049-2903ea8a1ecc",
+      "name": "Slack Main Flow Error",
+      "webhookId": "eb6b6268-4690-4a1f-9303-b5e59f015552",
+      "credentials": {
+        "slackApi": {
+          "id": "ZKLvR92HHLuuhZHg",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Main Flow Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "547d1500-1c89-4698-9f12-076e30db00c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eca38596c4162265cca967c11a28945c1a97274c04b8ba725ccf29fb44bc4fc5"
+  },
+  "id": "UQHIGDTKyssTWdqO",
+  "tags": []
+}

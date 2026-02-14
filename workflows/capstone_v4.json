@@ -1,0 +1,1982 @@
+{
+  "name": "capstone_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2d12a972-f068-40f6-a5eb-1fd86b1e4402",
+        "authentication": "basicAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -8976,
+        544
+      ],
+      "id": "48d8b434-4e44-4508-a609-bf82c9aeca22",
+      "name": "Webhook",
+      "webhookId": "2d12a972-f068-40f6-a5eb-1fd86b1e4402",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Brl7WPtHicIMdkNB",
+          "name": "TS BasicAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "table": "CustomerReviews",
+        "columns": "=uuid,ReviewID,ReviewDate,Source,ProductID,ProductCategory,CustomerName,CustomerEmail,OriginalReviewText,OriginalLanguage,EnTranslatedText,EnResponseDraft,OriginalLangResponseDraft,Rating,Sentiment,Topic,TopicConfidence,IssueCluster,IssueConfidence,ProcessedAt,ProcessingStatus,DurationSec,LLM_duration"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -7520,
+        384
+      ],
+      "id": "f488e4b9-1257-49b8-9a20-ddc100852f19",
+      "name": "Insert Review",
+      "credentials": {
+        "microsoftSql": {
+          "id": "NXjthfABbtJgNSiK",
+          "name": "Microsoft SQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "category": "randomData",
+        "randomDataType": "uuid",
+        "randomDataCount": 1
+      },
+      "type": "n8n-nodes-base.debugHelper",
+      "typeVersion": 1,
+      "position": [
+        -7984,
+        240
+      ],
+      "id": "4831fc82-de43-4cee-80b5-cc5c5e1ea441",
+      "name": "Generate UUID",
+      "retryOnFail": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -7840,
+        384
+      ],
+      "id": "984921af-f5e0-4cf0-9ccb-53ea22d4beb6",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"ReviewID\": \"{{ $json.ReviewID }}\",\n  \"uuid\": \"{{ $json.uuid }}\",\n  \"ReviewDate\": \"{{ $json.ReviewDate }}\",\n  \"Source\": \"{{$json.Source|| ''}}\",\n  \"ProductID\": \"{{$json.ProductID || ''}}\",\n  \"ProductCategory\": \"{{ $json.product_category || ''}}\",\n  \"CustomerName\": \"{{$json.CustomerName || ''}}\",\n  \"CustomerEmail\": \"{{$json.CustomerEmail || ''}}\",\n  \"OriginalReviewText\": \"{{$json.OriginalReviewText || ''}}\",\n\"OriginalLanguage\":\"{{ $json.language || '' }}\",\n\"Rating\":\"{{$json.Rating  || ''}}\",\n\"ProcessingStatus\": \"Pending\",\n\"ProcessedAt\":\"{{ $json.FlowStartTime }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -7680,
+        384
+      ],
+      "id": "43336310-afd2-4fa7-a3ff-0f898f5bb0cf",
+      "name": "Map parameters"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"output\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"TranslatedText\": { \"type\": \"string\" },\n        \"OriginalLanguage\": { \"type\": \"string\" }\n      },\n      \"additionalProperties\": false\n    }\n  },\n  \"required\": [\"output\"],\n  \"additionalProperties\": false\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -7120,
+        528
+      ],
+      "id": "ce2f5711-d3dc-4fb0-abeb-fc91a6313714",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"Sentiment\": {\n      \"type\": \"string\"\n    },\n    \"Topic\": {\n      \"type\": \"string\"\n    },\n    \"TopicConfidence\": {\n      \"type\": \"string\"\n    },\n    \"IssueCluster\": {\n      \"type\": \"string\"\n    },\n    \"IssueConfidenceScore\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"Sentiment\",\n    \"Topic\",\n    \"TopicConfidence\",\n    \"IssueCluster\",\n    \"IssueConfidenceScore\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -6448,
+        384
+      ],
+      "id": "9ce68d0f-ede5-4a57-8bbe-219acca0c64f",
+      "name": "Parse"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2466c6a9-ef41-475d-bf40-d78fc0dddf69",
+              "name": "startTimer",
+              "value": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8800,
+        544
+      ],
+      "id": "8b41ac5e-0f45-42a1-bac3-bd6beb714bd6",
+      "name": "GetStartTime"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Given input -\nInput: \"{{ $('Translate Review Text').item.json.output.TranslatedText }}\"\nExtract following parameters based on analysis of the input text, in JSON format, as specified in output parser.\n1. Sentiment: Return one sentiment from list - 'positive', 'negative' or 'neutral'\n2. Topic: Analyse the input text and indicate in which topic category the text falls from list - 'shipping', 'Billing', 'quality', 'support', 'Product-features'\n3. TopicConfidence: Confidence score in decimal value, for deciding the Topic attribute\n4. IssueCluster: Analyse the input text and indicate in which issue cluster category the text falls from below list -\n'Quality & Reliability',\n'Delivery & Fulfillment',\n'Payments & Refunds',\n'Support Experience',\n'Usability & Feature-Gaps'\n\n5. IssueConfidence: Confidence score in decimal value, for deciding the IssueCluster parameter",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert in analyzing customer reviews for -\n1. Sentiment analysis\n2. identifying review topic category\n3. identifying category of issue\n4. Confidence score"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -6592,
+        208
+      ],
+      "id": "79c2ef9d-57b5-4f24-b147-9584143fb239",
+      "name": "Extract Sentiment",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Identify the language of the following text and translate it to English (if input text is not in english):\n{{ $json.OriginalReviewText }}\n\nReturn output EXACTLY matching this schema (no markdown):",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert translator. \nOutput ONLY valid JSON that exactly matches the required schema.  \nDo NOT include markdown, explanations, or text outside the JSON."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -7216,
+        208
+      ],
+      "id": "075441d1-3bad-413a-9179-bb823d6829ab",
+      "name": "Translate Review Text",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1fec200-5caf-494a-a4e1-ffe30bce27f3",
+              "name": "DurationSec",
+              "value": "={{ (new Date($now.toFormat(\"yyyy-MM-dd HH:mm:ss\")) - new Date($('Insert Review').item.json.ProcessedAt)) / 1000 }}\n",
+              "type": "string"
+            },
+            {
+              "id": "d81863b4-5c9d-418f-8e85-d2323e9a3255",
+              "name": "TranslatedText",
+              "value": "={{ $('Translate Review Text').item.json.output.TranslatedText }}",
+              "type": "string"
+            },
+            {
+              "id": "e9be9d19-ca3a-4f9a-acb5-9cfcee94376c",
+              "name": "OriginalLanguage",
+              "value": "={{ $('Translate Review Text').item.json.output.OriginalLanguage }}",
+              "type": "string"
+            },
+            {
+              "id": "da0ccd2f-2a75-45fc-b366-7bd89bfe24c5",
+              "name": "Sentiment",
+              "value": "={{ $('Extract Sentiment').item.json.output.Sentiment }}",
+              "type": "string"
+            },
+            {
+              "id": "4e8b5b1b-0461-4cdc-9143-b3bc4be81764",
+              "name": "Topic",
+              "value": "={{ $('Extract Sentiment').item.json.output.Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "05a7a492-a8a1-4c17-81c6-109128915269",
+              "name": "TopicConfidence",
+              "value": "={{ $('Extract Sentiment').item.json.output.TopicConfidence }}",
+              "type": "string"
+            },
+            {
+              "id": "99148a22-cb09-44f6-ae63-3445c12a6d26",
+              "name": "IssueConfidence",
+              "value": "={{ $('Extract Sentiment').item.json.output.IssueConfidenceScore }}",
+              "type": "string"
+            },
+            {
+              "id": "e5c53982-930c-4815-9979-fb122844fb35",
+              "name": "ProcessingStatus",
+              "value": "Success",
+              "type": "string"
+            },
+            {
+              "id": "358bd199-0295-4c33-b9c1-28f652ebe5e3",
+              "name": "EnTranslatedText",
+              "value": "={{ $('Translate Review Text').item.json.output.TranslatedText }}",
+              "type": "string"
+            },
+            {
+              "id": "13e767f4-9310-40e0-88cb-9706051b86fb",
+              "name": "EnResponseDraft",
+              "value": "={{ $json.output.EnglishLanguage_Feedback }}",
+              "type": "string"
+            },
+            {
+              "id": "36fd3c18-456c-4d5a-a6d0-e22663218e7c",
+              "name": "OriginalLangResponseDraft",
+              "value": "={{ $json.output.NativeLanguage_Feedback }}",
+              "type": "string"
+            },
+            {
+              "id": "06e26ce0-0fe7-4720-abb8-4aa2b2945908",
+              "name": "IssueCluster",
+              "value": "={{ $('Extract Sentiment').item.json.output.IssueCluster }}",
+              "type": "string"
+            },
+            {
+              "id": "cada15e1-15f4-40cd-bfd1-31cd451969c0",
+              "name": "ReviewID",
+              "value": "={{ $('Insert Review').item.json.ReviewID }}",
+              "type": "string"
+            },
+            {
+              "id": "36b27e58-f785-47c5-8f9b-69ce474a8da6",
+              "name": "uuid",
+              "value": "={{ $('Insert Review').item.json.uuid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5424,
+        208
+      ],
+      "id": "19c8d922-bede-48a8-a81e-ae8c771ebb02",
+      "name": "Get EndTime"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "CacheValue",
+        "key": "={{ $json.output.Sentiment }}|{{ $json.output.IssueCluster }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -6304,
+        208
+      ],
+      "id": "f755b3e9-10bb-456b-a46e-a8ccbb65122a",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "Y7FcurmxHAkRGaLr",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const template = $input.first().json.CacheValue;               // the template string\nconst customerName = $('Evaluation_Merge').first().json.CustomerName;    // the actual value\n\n// replace placeholder {{CustomerName}} with actual customer name\nconst personalized = template.replace(/{{CustomerName}}/g, customerName);\n\nreturn [{ json: { responseDraft: personalized } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6128,
+        208
+      ],
+      "id": "0bd187d5-f013-4075-9c02-1d3bf749eb3b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"EnglishLanguage_Feedback\": {\n      \"type\": \"string\",\n      \"description\":\"Customer Review response Feedback in english language \"\n    },\n    \"NativeLanguage_Feedback\": {\n      \"type\": \"string\",\n      \"description\":\"Customer Review response Feedback in same language as the original one\"\n    }\n  },\n  \"required\": [\"EnglishLanguage_Feedback\", \"NativeLanguage_Feedback\"],\n  \"additionalProperties\": false\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -5824,
+        400
+      ],
+      "id": "4e8cf906-d5a6-45b1-8d64-4e7fbb60fc77",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "CustomerReviews",
+        "updateKey": "=uuid",
+        "columns": "=OriginalLanguage,EnTranslatedText,EnResponseDraft,OriginalLangResponseDraft,Sentiment,Topic,TopicConfidence,IssueCluster,IssueConfidence,ProcessingStatus,DurationSec,LLM_duration"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -5232,
+        208
+      ],
+      "id": "1ee1a7b2-c3ae-4169-88c6-59d25f2fd4ae",
+      "name": "Update ReviewRecord",
+      "credentials": {
+        "microsoftSql": {
+          "id": "NXjthfABbtJgNSiK",
+          "name": "Microsoft SQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5c0d7628-2eef-488c-a2e0-6bb55c0828da",
+              "name": "LLM_StartTime",
+              "value": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5664,
+        896
+      ],
+      "id": "6b172bf7-0679-4902-b9f7-4db5440d04ce",
+      "name": "LLM StartTime",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "formTitle": "End-User's  Review / Feedback",
+        "formDescription": "To collect end user's review comments on products, quality, shipping or service",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is Source?",
+              "placeholder": "web",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is Product ID?",
+              "placeholder": "Product ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is Review Date?",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is Review ID?",
+              "placeholder": "Review ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is Ratings?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "5"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "1"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your Review feedback?",
+              "placeholder": "Customer Review/Feedback",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your name?",
+              "placeholder": "Full Name",
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -8992,
+        160
+      ],
+      "id": "30b1e7f0-491f-4147-85b0-18bb8781ea7e",
+      "name": "On form submission",
+      "webhookId": "ffd09d84-080a-411e-bf2d-2123431d3d58",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Brl7WPtHicIMdkNB",
+          "name": "TS BasicAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae312b93-1482-4aca-8c29-29bca86d72e6",
+              "name": "ReviewDate",
+              "value": "={{ $('Webhook').item.json.body.review_date }}",
+              "type": "string"
+            },
+            {
+              "id": "a9ec27f4-a09b-471d-8af7-413c45b3f0ea",
+              "name": "Source",
+              "value": "={{ $('Webhook').item.json.body.Source }}",
+              "type": "string"
+            },
+            {
+              "id": "eb59d883-9361-4886-896f-fcf650dcc8cb",
+              "name": "ProductID",
+              "value": "={{ $('Webhook').item.json.body.product_id }}",
+              "type": "string"
+            },
+            {
+              "id": "60372d52-ae6a-4403-8fc9-ee879d9267b2",
+              "name": "CustomerName",
+              "value": "={{ $('Webhook').item.json.body.CustomerName }}",
+              "type": "string"
+            },
+            {
+              "id": "e3bcd572-1106-4c7b-8496-721fb3ec833e",
+              "name": "OriginalReviewText",
+              "value": "={{ $('Webhook').item.json.body.review_body }}",
+              "type": "string"
+            },
+            {
+              "id": "2980954d-883f-4e12-b7f9-5a3198988c82",
+              "name": "Rating",
+              "value": "={{ $('Webhook').item.json.body.Rating }}",
+              "type": "string"
+            },
+            {
+              "id": "bab4e928-b553-411e-b63b-2a4f44990a90",
+              "name": "ProductCategory",
+              "value": "={{ $('Webhook').item.json.body.product_category }}",
+              "type": "string"
+            },
+            {
+              "id": "c9c06742-a81b-4f1e-aae5-1754dc7bd4f0",
+              "name": "OriginalLanguage",
+              "value": "={{ $('Webhook').item.json.body.language }}",
+              "type": "string"
+            },
+            {
+              "id": "8064e9a3-d4cb-4e54-b91d-80bc0f70d0c6",
+              "name": "FlowStartTime",
+              "value": "={{ $json.startTimer }}",
+              "type": "string"
+            },
+            {
+              "id": "467f1e27-aeb0-4175-b803-3a7f9160eed2",
+              "name": "channel",
+              "value": "postman",
+              "type": "string"
+            },
+            {
+              "id": "675d02e3-6685-46ca-b30f-2a5db00869d8",
+              "name": "ReviewID",
+              "value": "={{ $('Webhook').item.json.body.review_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8544,
+        544
+      ],
+      "id": "e472897a-7c7d-480c-b3e8-186322dc2f3f",
+      "name": "Map Attributes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae312b93-1482-4aca-8c29-29bca86d72e6",
+              "name": "ReviewDate",
+              "value": "={{ $('On form submission').item.json['What is Review Date?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "a9ec27f4-a09b-471d-8af7-413c45b3f0ea",
+              "name": "Source",
+              "value": "={{ $('On form submission').item.json['What is Source?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "eb59d883-9361-4886-896f-fcf650dcc8cb",
+              "name": "ProductID",
+              "value": "={{ $('On form submission').item.json['What is Product ID?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "60372d52-ae6a-4403-8fc9-ee879d9267b2",
+              "name": "CustomerName",
+              "value": "={{ $('On form submission').item.json['What is your name?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e3bcd572-1106-4c7b-8496-721fb3ec833e",
+              "name": "OriginalReviewText",
+              "value": "={{ $('On form submission').item.json['What is your Review feedback?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2980954d-883f-4e12-b7f9-5a3198988c82",
+              "name": "Rating",
+              "value": "={{ $('On form submission').item.json['What is Ratings?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "064ed218-0825-48e0-9c11-b616ecd9fcca",
+              "name": "FlowStartTime",
+              "value": "={{ $json.startTimer }}",
+              "type": "string"
+            },
+            {
+              "id": "bddefc28-74e0-4769-9414-7e7454ae9bc9",
+              "name": "channel",
+              "value": "form",
+              "type": "string"
+            },
+            {
+              "id": "6fe0139f-e18b-4853-b20d-9aa10eea16d8",
+              "name": "ReviewID",
+              "value": "={{ $('On form submission').item.json['What is Review ID?'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8592,
+        160
+      ],
+      "id": "7b3871c7-f267-4248-b286-95ba5d145e4c",
+      "name": "Map FormAttributes"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -8240,
+        400
+      ],
+      "id": "05f15c59-649c-4ab0-80a5-62348f17d091",
+      "name": "Combine Trig Inputs"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2466c6a9-ef41-475d-bf40-d78fc0dddf69",
+              "name": "startTimer",
+              "value": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8784,
+        160
+      ],
+      "id": "801e4374-3e0a-49a0-a692-40d2698019be",
+      "name": "GetStartTime1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6b9c31b9-28cb-4090-81fc-0cd79db5e6c6",
+              "leftValue": "={{ $('Merge').item.json.channel }}",
+              "rightValue": "form",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -5056,
+        208
+      ],
+      "id": "bdba99ed-2d5f-443c-a666-8caa48c326a2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "=Thanks for your Feedback, {{ $('Insert Review').item.json.CustomerName }}!",
+        "completionMessage": "={{ $json.OriginalLangResponseDraft }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        -4768,
+        112
+      ],
+      "id": "7f75563e-bc64-4f4e-b9b6-0655b7c1c874",
+      "name": "Form",
+      "webhookId": "f20afbe7-e885-40fc-986a-34f408e3e54d"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc",
+          "mode": "list",
+          "cachedResultName": "capstone_Review_SentimentAnalysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc/edit#gid=0"
+        }
+      },
+      "type": "n8n-nodes-base.evaluationTrigger",
+      "typeVersion": 4.6,
+      "position": [
+        -7952,
+        -80
+      ],
+      "id": "808144dd-2ccc-4025-9b96-e9828afa6244",
+      "name": "When fetching a dataset row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aArsKGE2rFrSSb3N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "checkIfEvaluating"
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.7,
+      "position": [
+        -5712,
+        208
+      ],
+      "id": "e99a20e0-0c60-4dc8-93e3-57846b64153e",
+      "name": "Evaluation1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc",
+          "mode": "list",
+          "cachedResultName": "capstone_Review_SentimentAnalysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IO_WJxUSgkZTxlxUPiq2Cry2eRP9QNWkVRikiAWFkbc/edit#gid=0"
+        },
+        "outputs": {
+          "values": [
+            {
+              "outputName": "match_score_TranslatedText",
+              "outputValue": "={{ $('Translation Correctness (LLM as Judge)').item.json.translation_Correctness }}"
+            },
+            {
+              "outputName": "match_score_Language",
+              "outputValue": "={{ $('Evaluate String-Similarity').item.json.match_score_Language }}"
+            },
+            {
+              "outputName": "match_score_sentiment",
+              "outputValue": "={{ $('Evaluate String-Similarity').item.json.match_score_sentiment }}"
+            },
+            {
+              "outputName": "match_score_Topic",
+              "outputValue": "={{ $('Evaluate String-Similarity').item.json.match_score_Topic }}"
+            },
+            {
+              "outputName": "match_score_IssueCluster",
+              "outputValue": "={{ $('Evaluate String-Similarity').item.json.match_score_IssueCluster }}"
+            },
+            {
+              "outputName": "match_score_expectedResponse",
+              "outputValue": "={{ $json.response_Correctness }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.7,
+      "position": [
+        -4576,
+        -144
+      ],
+      "id": "17c805a2-a6f2-4195-b432-8533936314d7",
+      "name": "Update Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "aArsKGE2rFrSSb3N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -7392,
+        208
+      ],
+      "id": "ee7f47b9-6b2c-4b9a-b47f-2475620dc641",
+      "name": "Evaluation_Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4156243-7666-4fa5-837f-b345ba86d195",
+              "name": "CustomerName",
+              "value": "Rachel",
+              "type": "string"
+            },
+            {
+              "id": "5b6eed8c-c0d4-480a-9cbc-51150fc18d52",
+              "name": "OriginalReviewText",
+              "value": "={{ $json.OriginalText }}",
+              "type": "string"
+            },
+            {
+              "id": "762b4404-65ad-4c87-af09-c12293e6fd4d",
+              "name": "expected_TranslatedText",
+              "value": "={{ $json.expected_TranslatedText }}",
+              "type": "string"
+            },
+            {
+              "id": "ee86ea06-2c9d-4807-b51b-4d97f46bbfac",
+              "name": "expected_Language",
+              "value": "={{ $json.expected_Language }}",
+              "type": "string"
+            },
+            {
+              "id": "cbd1cf5c-1556-46f4-bb75-ea76a80e69f5",
+              "name": "expected_sentiment",
+              "value": "={{ $json.expected_sentiment }}",
+              "type": "string"
+            },
+            {
+              "id": "02765d2d-729e-4fd4-a552-ddeb3cb6c0f1",
+              "name": "expected_Topic",
+              "value": "={{ $json.expected_Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "615df4db-ce06-4dcc-afaa-6ea7f93f1774",
+              "name": "expected_IssueCategory",
+              "value": "={{ $json.expected_IssueCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "6d895af0-87ab-49c7-adcf-e860b2a96171",
+              "name": "expected_response",
+              "value": "={{ $json.expected_Response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -7680,
+        -80
+      ],
+      "id": "1798814d-ff63-4266-b32b-46640cf4128d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1fec200-5caf-494a-a4e1-ffe30bce27f3",
+              "name": "DurationSec",
+              "value": "={{ (new Date($now.toFormat(\"yyyy-MM-dd HH:mm:ss\")) - new Date($('Insert Review').item.json.ProcessedAt)) / 1000 }}\n",
+              "type": "string"
+            },
+            {
+              "id": "d81863b4-5c9d-418f-8e85-d2323e9a3255",
+              "name": "TranslatedText",
+              "value": "={{ $('Translate Review Text').item.json.output.TranslatedText }}",
+              "type": "string"
+            },
+            {
+              "id": "e9be9d19-ca3a-4f9a-acb5-9cfcee94376c",
+              "name": "OriginalLanguage",
+              "value": "={{ $('Translate Review Text').item.json.output.OriginalLanguage }}",
+              "type": "string"
+            },
+            {
+              "id": "da0ccd2f-2a75-45fc-b366-7bd89bfe24c5",
+              "name": "Sentiment",
+              "value": "={{ $('Extract Sentiment').item.json.output.Sentiment }}",
+              "type": "string"
+            },
+            {
+              "id": "4e8b5b1b-0461-4cdc-9143-b3bc4be81764",
+              "name": "Topic",
+              "value": "={{ $('Extract Sentiment').item.json.output.Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "05a7a492-a8a1-4c17-81c6-109128915269",
+              "name": "TopicConfidence",
+              "value": "={{ $('Extract Sentiment').item.json.output.TopicConfidence }}",
+              "type": "string"
+            },
+            {
+              "id": "99148a22-cb09-44f6-ae63-3445c12a6d26",
+              "name": "IssueConfidence",
+              "value": "={{ $('Extract Sentiment').item.json.output.IssueConfidenceScore }}",
+              "type": "string"
+            },
+            {
+              "id": "e5c53982-930c-4815-9979-fb122844fb35",
+              "name": "ProcessingStatus",
+              "value": "Success",
+              "type": "string"
+            },
+            {
+              "id": "358bd199-0295-4c33-b9c1-28f652ebe5e3",
+              "name": "EnTranslatedText",
+              "value": "={{ $('Translate Review Text').item.json.output.TranslatedText }}",
+              "type": "string"
+            },
+            {
+              "id": "13e767f4-9310-40e0-88cb-9706051b86fb",
+              "name": "EnResponseDraft",
+              "value": "={{ $json.output.EnglishLanguage_Feedback }}",
+              "type": "string"
+            },
+            {
+              "id": "36fd3c18-456c-4d5a-a6d0-e22663218e7c",
+              "name": "OriginalLangResponseDraft",
+              "value": "={{ $json.output.NativeLanguage_Feedback }}",
+              "type": "string"
+            },
+            {
+              "id": "06e26ce0-0fe7-4720-abb8-4aa2b2945908",
+              "name": "IssueCluster",
+              "value": "={{ $('Extract Sentiment').item.json.output.IssueCluster }}",
+              "type": "string"
+            },
+            {
+              "id": "cada15e1-15f4-40cd-bfd1-31cd451969c0",
+              "name": "ReviewID",
+              "value": "={{ $('Insert Review').item.json.ReviewID }}",
+              "type": "string"
+            },
+            {
+              "id": "ab94c853-1b4f-4b47-9094-04a2d9c826d8",
+              "name": "LLM_duration",
+              "value": "={{ (new Date($now.toFormat(\"yyyy-MM-dd HH:mm:ss\")) - new Date($('LLM StartTime').item.json.LLM_StartTime)) / 1000 }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5424,
+        848
+      ],
+      "id": "1e5a73ea-271b-4a78-af9e-324d3bfa2ecb",
+      "name": "Original_Get EndTime",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -4736,
+        368
+      ],
+      "id": "ce089ec0-5742-443f-8007-d6fa4e83cc5c",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "metric": "customMetrics",
+        "metrics": {
+          "assignments": [
+            {
+              "name": "match_score_Language",
+              "value": "={{$('Translate Review Text').item.json.output.OriginalLanguage  ==  $('Evaluation_Merge').item.json.expected_Language?1:0}}",
+              "type": "number",
+              "id": "7a35cc8f-0512-474b-8412-2cfdec1b4205"
+            },
+            {
+              "id": "3ff01224-2bc4-449b-9dfa-3471269c1bdb",
+              "name": "match_score_sentiment",
+              "value": "={{ $('Extract Sentiment').item.json.output.Sentiment == $('Evaluation_Merge').item.json.expected_sentiment?1:0}}",
+              "type": "number"
+            },
+            {
+              "id": "59da974b-7c10-4024-89ef-c27e7f176337",
+              "name": "match_score_Topic",
+              "value": "={{ $('Extract Sentiment').item.json.output.Topic == $('Evaluation_Merge').item.json.expected_Topic?1:0}}",
+              "type": "number"
+            },
+            {
+              "id": "71c1fc4f-7182-47e4-8f58-53d3e86a3329",
+              "name": "match_score_IssueCluster",
+              "value": "={{ $('Extract Sentiment').item.json.output.IssueCluster == $('Evaluation_Merge').item.json.expected_IssueCategory?1:0}}",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.7,
+      "position": [
+        -5424,
+        -144
+      ],
+      "id": "e65a9de8-941c-4224-a38f-c8b20053ac0e",
+      "name": "Evaluate String-Similarity"
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "expectedAnswer": "={{ $('Evaluation_Merge').item.json.expected_TranslatedText }}",
+        "actualAnswer": "={{ $('Translate Review Text').item.json.output.TranslatedText }}",
+        "options": {
+          "metricName": "translation_Correctness"
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.7,
+      "position": [
+        -5232,
+        -144
+      ],
+      "id": "8bdf16fe-dfab-4a9a-82c7-b65e838cf36a",
+      "name": "Translation Correctness (LLM as Judge)"
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "expectedAnswer": "={{ $('Evaluation_Merge').item.json.expected_response }}",
+        "actualAnswer": "={{ $('Review Response Generator').item.json.output.NativeLanguage_Feedback }}",
+        "options": {
+          "metricName": "response_Correctness"
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.7,
+      "position": [
+        -4912,
+        -144
+      ],
+      "id": "e2375741-4b16-40db-ba15-6a3b01679571",
+      "name": "ResponseGen Correctness (LLM as Judge)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Task:\n{{ $json.responseDraft }}\nGenerate feedback in english language as well as in customer's native language: \"{{ $('Translate Review Text').item.json.output.OriginalLanguage }}\" as specified in output JSON format parser (EnglishLanguage_Feedback and NativeLanguage_Feedback).\n\n\nSincerely,\nGroup3 Support Team",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert in providing feedback to customer review. Be polite and generous to feedback to customer."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -5984,
+        208
+      ],
+      "id": "65eb7233-2893-48d7-9424-f1ede2faa145",
+      "name": "Review Response Generator",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output.TranslatedText }}",
+        "guardrails": {
+          "nsfw": {
+            "value": {
+              "threshold": 0.5
+            }
+          },
+          "pii": {
+            "value": {
+              "type": "all"
+            }
+          },
+          "secretKeys": {
+            "value": {
+              "permissiveness": "permissive"
+            }
+          },
+          "urls": {
+            "value": {
+              "allowedUrls": "",
+              "allowedSchemes": []
+            }
+          }
+        },
+        "customizeSystemMessage": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "typeVersion": 1,
+      "position": [
+        -6896,
+        192
+      ],
+      "id": "0fb36abe-5b07-40d9-8913-aa7f9fa961c0",
+      "name": "Guardrails"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "CustomerReviews",
+        "updateKey": "=uuid",
+        "columns": "ProcessingStatus,ErrorDesc"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        -6176,
+        928
+      ],
+      "id": "2b267e0b-7f61-48f1-86d4-2b31b5149887",
+      "name": "UpdateErrorDesc",
+      "credentials": {
+        "microsoftSql": {
+          "id": "NXjthfABbtJgNSiK",
+          "name": "Microsoft SQL account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "avijit1.d@gmail.com",
+        "subject": "=N8N Error for UUID [{{ $json.uuid }}]",
+        "message": "=UUID:{{ $json.uuid }}\nErrorDesc:{{ $json.ErrorDesc }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -5920,
+        912
+      ],
+      "id": "ea1de4f7-be85-46a5-b3e2-42709869b406",
+      "name": "Send a message",
+      "webhookId": "b34a6087-dcb9-4a09-a782-61bf0a17469f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZMDZE0JfqLLolgnu",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0573766b-ab27-450b-a4ad-b57958be720c",
+              "name": "ErrorDesc",
+              "value": "=GuardRail Error: \nCheck Name: {{ $json.checks[0].name }}\nCheck Triggered: {{ $json.checks[0].triggered }}\nConfidence Score: {{ $json.checks[0].confidenceScore }}",
+              "type": "string"
+            },
+            {
+              "id": "9ca534ea-64ff-4f13-b7bf-5e89b6639dea",
+              "name": "uuid",
+              "value": "={{ $('Insert Review').item.json.uuid }}",
+              "type": "string"
+            },
+            {
+              "id": "20a2279e-5542-4666-9f37-55bc4dd25362",
+              "name": "ProcessingStatus",
+              "value": "ERROR",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -6576,
+        560
+      ],
+      "id": "5923de6b-f046-4fe2-87e3-f20c83cbe55a",
+      "name": "Map Error"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RZWX1SQHp9ZtHJiz",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/RZWX1SQHp9ZtHJiz",
+          "cachedResultName": "InflowErrorHandling"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "uuid",
+              "displayName": "uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ProcessingStatus",
+              "displayName": "ProcessingStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ErrorDesc",
+              "displayName": "ErrorDesc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -6320,
+        752
+      ],
+      "id": "b5363b20-fd9c-46b6-9675-0f8c4506eca7",
+      "name": "Call 'InflowErrorHandling'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec5a79dc-4e02-49dc-9060-65f7e683fb57",
+              "name": "ErrorDesc",
+              "value": "=Translation LLM API CallError: {{ $json.error }}",
+              "type": "string"
+            },
+            {
+              "id": "000dd0c9-2bde-4893-b37d-a5d693145595",
+              "name": "ProcessingStatus",
+              "value": "ERROR",
+              "type": "string"
+            },
+            {
+              "id": "c4470f1a-d39b-4773-b07f-e58f48785126",
+              "name": "uuid",
+              "value": "={{ $('Insert Review').item.json.uuid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -6880,
+        560
+      ],
+      "id": "2d043c13-3530-4df8-aa17-a046bb40292b",
+      "name": "TranslationAPI CallError"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec5a79dc-4e02-49dc-9060-65f7e683fb57",
+              "name": "ErrorDesc",
+              "value": "Sentiment Analysis LLM API Call Error",
+              "type": "string"
+            },
+            {
+              "id": "000dd0c9-2bde-4893-b37d-a5d693145595",
+              "name": "ProcessingStatus",
+              "value": "ERROR",
+              "type": "string"
+            },
+            {
+              "id": "c4470f1a-d39b-4773-b07f-e58f48785126",
+              "name": "uuid",
+              "value": "={{ $('Insert Review').item.json.uuid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -6256,
+        544
+      ],
+      "id": "203dabcb-53a4-452a-8624-e2ab88df733e",
+      "name": "Sentiment LLM CallError"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec5a79dc-4e02-49dc-9060-65f7e683fb57",
+              "name": "ErrorDesc",
+              "value": "Review Response LLM API Call Error",
+              "type": "string"
+            },
+            {
+              "id": "000dd0c9-2bde-4893-b37d-a5d693145595",
+              "name": "ProcessingStatus",
+              "value": "ERROR",
+              "type": "string"
+            },
+            {
+              "id": "c4470f1a-d39b-4773-b07f-e58f48785126",
+              "name": "uuid",
+              "value": "={{ $('Insert Review').item.json.uuid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5584,
+        544
+      ],
+      "id": "8a7e9c27-1aa7-4643-a22d-64b3995b9fcb",
+      "name": "ReviewResponse LLM CallError"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -7392,
+        544
+      ],
+      "id": "420e6323-26c3-48de-9a4b-1362b04334c4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "2S81GobY9Iib8y4e",
+          "name": "openAI Paid API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -5984,
+        400
+      ],
+      "id": "831b452a-af99-4db5-b2b7-1799f3051efd",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "2S81GobY9Iib8y4e",
+          "name": "openAI Paid API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -4960,
+        48
+      ],
+      "id": "c416dec2-69ca-4c7c-b341-731499b83fbe",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "u5lllR9iCpLPejwG",
+          "name": "MyGeminiAPIAccess"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "What is Source?": "web",
+          "What is Product ID?": "543543453",
+          "What is Review Date?": "2025-11-30",
+          "What is Review ID?": "12349",
+          "What is Ratings?": "3",
+          "What is your Review feedback?": "I want hack a cyber defense system....",
+          "What is your name?": "Avijit DUtta",
+          "submittedAt": "2025-11-30T12:50:50.546+03:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "GetStartTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate UUID": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Review": {
+      "main": [
+        [
+          {
+            "node": "Evaluation_Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Map parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map parameters": {
+      "main": [
+        [
+          {
+            "node": "Insert Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Translate Review Text",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Sentiment",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetStartTime": {
+      "main": [
+        [
+          {
+            "node": "Map Attributes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sentiment LLM CallError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate Review Text": {
+      "main": [
+        [
+          {
+            "node": "Guardrails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "TranslationAPI CallError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get EndTime": {
+      "main": [
+        [
+          {
+            "node": "Update ReviewRecord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Review Response Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Review Response Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM StartTime": {
+      "main": [
+        []
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "GetStartTime1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Attributes": {
+      "main": [
+        [
+          {
+            "node": "Combine Trig Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Map FormAttributes": {
+      "main": [
+        [
+          {
+            "node": "Combine Trig Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Trig Inputs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Generate UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetStartTime1": {
+      "main": [
+        [
+          {
+            "node": "Map FormAttributes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update ReviewRecord": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation1": {
+      "main": [
+        [
+          {
+            "node": "Evaluate String-Similarity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get EndTime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When fetching a dataset row": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation_Merge": {
+      "main": [
+        [
+          {
+            "node": "Translate Review Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Evaluation_Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate String-Similarity": {
+      "main": [
+        [
+          {
+            "node": "Translation Correctness (LLM as Judge)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translation Correctness (LLM as Judge)": {
+      "main": [
+        [
+          {
+            "node": "ResponseGen Correctness (LLM as Judge)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ResponseGen Correctness (LLM as Judge)": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review Response Generator": {
+      "main": [
+        [
+          {
+            "node": "Evaluation1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReviewResponse LLM CallError",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails": {
+      "main": [
+        [
+          {
+            "node": "Extract Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Map Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateErrorDesc": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Error": {
+      "main": [
+        [
+          {
+            "node": "Call 'InflowErrorHandling'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TranslationAPI CallError": {
+      "main": [
+        [
+          {
+            "node": "Call 'InflowErrorHandling'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment LLM CallError": {
+      "main": [
+        [
+          {
+            "node": "Call 'InflowErrorHandling'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ReviewResponse LLM CallError": {
+      "main": [
+        [
+          {
+            "node": "Call 'InflowErrorHandling'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Translate Review Text",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Extract Sentiment",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Guardrails",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Review Response Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Translation Correctness (LLM as Judge)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "ResponseGen Correctness (LLM as Judge)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kuwait",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "X6PyaFQSmpgAtIep",
+    "availableInMCP": false
+  },
+  "versionId": "18f0767c-7861-4c04-be0b-85e62f252c46",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "257a4514ce84a37ecdbabf4f4e4ef791baf39f2189b94973fbdf382f1458c61e"
+  },
+  "id": "MWUAcioaK6AqDPvx",
+  "tags": []
+}

@@ -1,0 +1,213 @@
+{
+  "name": "Store in Redis",
+  "nodes": [
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Sentiment",
+              "value": "negative"
+            },
+            {
+              "name": "IssueType",
+              "value": "Support Experience"
+            },
+            {
+              "name": "CustomerName",
+              "value": "Alex"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d306c68-1af0-4d4d-8fad-aeb590b56722",
+      "name": "Sample Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        128
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "id": "91f56364-9022-4c59-89e8-4bb1bc98de4c",
+      "name": "Build Redis Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        128
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "positive|Support Experience",
+        "options": {}
+      },
+      "id": "3b5f32a2-8e70-4e80-8b79-62d1aff12f85",
+      "name": "Redis Get Template",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        704,
+        128
+      ],
+      "credentials": {
+        "redis": {
+          "id": "Y7FcurmxHAkRGaLr",
+          "name": "Redis account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "id": "59355911-44de-468a-aca9-32816784edac",
+      "name": "Personalize Template",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        128
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -128
+      ],
+      "id": "5e03e489-4065-4efb-b159-13b6aa3a0330",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n\t\t\"positive|Quality & Reliability\": \"Thank {{CustomerName}} warmly for their feedback on product quality. Acknowledge their satisfaction and invite future suggestions.\",\n\t\t\"negative|Quality & Reliability\": \"Apologize sincerely to {{CustomerName}} for the product quality issue and assure them of replacement or improvement steps.\",\n\t\t\"neutral|Quality & Reliability\": \"Acknowledge {{CustomerName}}’s balanced review about quality and express appreciation for their honesty.\",\n\n\t\t\"positive|Delivery & Fulfillment\": \"Thank {{CustomerName}} for their positive experience with delivery and highlight your fast shipping commitment.\",\n\t\t\"negative|Delivery & Fulfillment\": \"Apologize to {{CustomerName}} for the delivery issue and explain steps being taken to ensure better logistics.\",\n\t\t\"neutral|Delivery & Fulfillment\": \"Thank {{CustomerName}} for their feedback about delivery and note that their input helps optimize the fulfillment process.\",\n\n\t\t\"positive|Payments & Refunds\": \"Thank {{CustomerName}} for smooth payment experience feedback and reinforce your secure transaction commitment.\",\n\t\t\"negative|Payments & Refunds\": \"Apologize to {{CustomerName}} for the payment or refund issue and mention the support team has been alerted.\",\n\t\t\"neutral|Payments & Refunds\": \"Acknowledge {{CustomerName}}’s comments about payment experience and thank them for sharing details.\",\n\n\t\t\"positive|Support Experience\": \"Thank {{CustomerName}} for their positive feedback about customer support and let them know you’ll share it with the support team.\",\n\t\t\"negative|Support Experience\": \"Apologize to {{CustomerName}} for poor support experience and assure prompt follow-up and retraining measures.\",\n\t\t\"neutral|Support Experience\": \"Acknowledge {{CustomerName}}’s balanced feedback about support and express commitment to continuous improvement.\",\n\n\t\t\"positive|Usability & Feature-Gaps\": \"Thank {{CustomerName}} for finding the product easy to use and mention that feature suggestions are always welcome.\",\n\t\t\"negative|Usability & Feature-Gaps\": \"Apologize to {{CustomerName}} for usability or feature limitations and assure ongoing updates based on user input.\",\n\t\t\"neutral|Usability & Feature-Gaps\": \"Thank {{CustomerName}} for their feedback on usability and mention you’ll forward it to the product team.\"\n\t}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        -128
+      ],
+      "id": "eaa5f1c4-019d-4884-95ba-2412515968ff",
+      "name": "Static Templates"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = [];\n\nfor (const [key, value] of Object.entries($json)) {\n  result.push({ json: { key, value } });\n}\n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -128
+      ],
+      "id": "d99fb7ce-6e16-4bb1-bc0b-d373d4122ec8",
+      "name": "Extract as Key-Value"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.key }}",
+        "value": "={{ $json.value }}"
+      },
+      "id": "6a7a78fc-13ae-44ae-8d95-5fb6b3c156e1",
+      "name": "Store in Cache",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -128
+      ],
+      "credentials": {
+        "redis": {
+          "id": "Y7FcurmxHAkRGaLr",
+          "name": "Redis account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Sample Input": {
+      "main": [
+        [
+          {
+            "node": "Build Redis Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Redis Key": {
+      "main": [
+        []
+      ]
+    },
+    "Redis Get Template": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Static Templates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Static Templates": {
+      "main": [
+        [
+          {
+            "node": "Extract as Key-Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract as Key-Value": {
+      "main": [
+        [
+          {
+            "node": "Store in Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bdf9126b-7d18-4c18-b387-b1d046152327",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "257a4514ce84a37ecdbabf4f4e4ef791baf39f2189b94973fbdf382f1458c61e"
+  },
+  "id": "HLAXA7TlXOeTFa8z",
+  "tags": []
+}
