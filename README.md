@@ -32,9 +32,9 @@ This solution automates:
 - **Model selection criteria:**    Selectd closed source models considering latency, accuracy, and domain relevance.
 - **Orchestration tool selection:**  Cost effective workflow tool for integration complexity, scalability.
 - **Exception handling & edge cases:** Designing robust failover and retry mechanisms for API failures and identifying edge cases for the solution.
-- **Content safety and security:**  Mitigating prompt injections and ensuring data privacy.
-- **Evaluation metrics:**  Tracking accuracy, safety, fairness, latency, and throughput.
-- **Deployment & scalability:**  Thought through cloud based or on-premise deployment and monitoring for reliable operation.
+- **Content safety and security:**  Mitigating prompt injections, PII, bias, hate, violence and ensuring data privacy.
+- **Evaluation metrics:**  Measuring accuracy, safety, fairness, latency, and throughput.
+- **Deployment & scalability:**  Thought through cloud based or on-premise deployment and monitoring for reliable operation. Cost is a major factor.
 - **LLM Ops & lifecycle management:** Monitoring error rates, latency, and throughput needs.
 - **User feedback & human-in-the-loop:** As it is a low risk solution, did not incorporate HITL.
 
