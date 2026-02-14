@@ -1,0 +1,74 @@
+# Executive Summary
+This project demonstrates an end-to-end Generative AI–driven architecture for:
+   - Customer Review collection Interface
+   - Automated customer review analysis
+   - AI-generated contextual responses
+   - Sentiment classification
+   - Insight & trend extraction
+   - Workflow automation
+
+The system integrates LLM capabilities with orchestration workflows to simulate a production-ready AI-powered customer intelligence solution.
+This project reflects architectural thinking around:
+   - LLM orchestration
+   - Workflow automation
+   - Insight generation pipelines
+   - Scalable inference design
+# Problem Statement
+Organizations receive large volumes of customer reviews across platforms. Manually:
+   - Analyzing sentiment
+   - Identifying trends
+   - Crafting personalized responses
+is time-consuming and inconsistent.
+
+This solution automates:
+   1. Review ingestion
+   2. Sentiment analysis
+   3. Insight extraction
+   4. AI-generated response drafting
+   5. Trend visualization
+# Solution Architecture
+   - Customer Review collection Interface
+   - Review Analysis and classification
+   - Automated Response
+   - Trend Insights
+<p align="center">
+  <img src="images/Solution.png" width="800"/>
+</p>
+
+<p align="center"><em>
+Figure 1: End-to-end Generative AI workflow architecture.
+</em></p>
+<p align="center">
+  <img src="images/Tools.png" width="800"/>
+</p>
+
+<p align="center"><em>
+Figure 2: Technology Stack.
+</em></p>
+
+
+# Simulation Interface - End-User /Customer Review
+     1. Through N8N Form
+     2. Through Postman Collection Runner
+     
+# Review Response Prompt Templates
+   - Templates are stored in Redis Cache
+
+# N8N Workflows
+   - LLM Driven Language Translation, Sentiment Analysis, Topic categorization, and Issue classification
+   - Exception handling strategy
+          - Email Alert (to operations)
+          - Slack Alert (to operations)
+  <img src="images/N8N_Flow.png" alt="Workflow" width="500"/>        
+# Evaluations strategy   
+   - Accuracy (using LLM-as-judge) (Accuracy Metrics)     
+   <img src="images/Accuracy_Metrics.png" alt="Accuracy Evaluation" width="500"/>
+   - Safety and Reliability (Guardrails, Failover)
+        (Safety Metrics)
+       
+   - Operations & Monitoring (using Langsmith and timestamp calculations)
+         (LLM Ops - Metrics)
+    <img src="images/LLMOps_Metrics.png" alt="LLMOps Evaluation" width="500"/>
+# Weekly Customer Sentiment Trend (Tableau Dashboard)
+<img src="images/tableau_trend.png" alt="Weekly Customer Sentiment Trend Analysis" width="500"/>
+  
