@@ -32,7 +32,7 @@ This solution automates:
    - Automated Response
    - Trend Insights
 <p align="center">
-  <img src="images/Solution.png" width="800"/>
+  <img src="architecture/Solution.png" width="800"/>
 </p>
 
 <p align="center"><em>
@@ -41,11 +41,17 @@ Figure 1: End-to-end Generative AI workflow architecture.
 <p align="center">
   <img src="images/Tools.png" width="800"/>
 </p>
-
 <p align="center"><em>
 Figure 2: Technology Stack.
 </em></p>
 
+# Exception Handling & Edge Cases
+<p align="center">
+  <img src="images/Exception_handling_strategy.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 3: Exception handling considerations.
+</em></p>
 
 # Simulation Interface - End-User /Customer Review
      1. Through N8N Form
@@ -54,21 +60,51 @@ Figure 2: Technology Stack.
 # Review Response Prompt Templates
    - Templates are stored in Redis Cache
 
-# N8N Workflows
+# Workflows
    - LLM Driven Language Translation, Sentiment Analysis, Topic categorization, and Issue classification
    - Exception handling strategy
           - Email Alert (to operations)
           - Slack Alert (to operations)
-  <img src="images/N8N_Flow.png" alt="Workflow" width="500"/>        
+<p align="center">
+  <img src="images/N8N_Flow.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 4: N8N Workflow.
+</em></p>
+    
 # Evaluations strategy   
    - Accuracy (using LLM-as-judge) (Accuracy Metrics)     
-   <img src="images/Accuracy_Metrics.png" alt="Accuracy Evaluation" width="500"/>
+<p align="center">
+  <img src="images/Accuracy_Metrics.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 5: Accuracy Evaluation Metrics.
+</em></p>
+   
    - Safety and Reliability (Guardrails, Failover)
         (Safety Metrics)
-       
+<p align="center">
+  <img src="images/Safety_Metrics.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 6: Safety Evaluation Metrics.
+</em></p>     
    - Operations & Monitoring (using Langsmith and timestamp calculations)
          (LLM Ops - Metrics)
-    <img src="images/LLMOps_Metrics.png" alt="LLMOps Evaluation" width="500"/>
+   
+<p align="center">
+  <img src="images/LLMOps_Metrics.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 7: LLMOps Evaluation Metrics.
+</em></p>
+   
 # Weekly Customer Sentiment Trend (Tableau Dashboard)
-<img src="images/tableau_trend.png" alt="Weekly Customer Sentiment Trend Analysis" width="500"/>
+<p align="center">
+  <img src="images/tableau_trend.png" width="800"/>
+</p>
+<p align="center"><em>
+Figure 8: Tableau dashboard (drill-down).
+</em></p>
+
   
