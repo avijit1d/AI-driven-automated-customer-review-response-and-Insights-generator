@@ -26,6 +26,18 @@ This solution automates:
    3. Insight extraction
    4. AI-generated response drafting
    5. Trend visualization
+
+## Generative AI Solution Design Considerations
+
+- **Model selection criteria:**    Selectd closed source models considering latency, accuracy, and domain relevance.
+- **Orchestration tool selection:**  Cost effective workflow tool for integration complexity, scalability.
+- **Exception handling & edge cases:** Designing robust failover and retry mechanisms for API failures and identifying edge cases for the solution.
+- **Content safety and security:**  Mitigating prompt injections and ensuring data privacy.
+- **Evaluation metrics:**  Tracking accuracy, safety, fairness, latency, and throughput.
+- **Deployment & scalability:**  Thought through cloud based or on-premise deployment and monitoring for reliable operation.
+- **LLM Ops & lifecycle management:** Monitoring error rates, latency, and throughput needs.
+- **User feedback & human-in-the-loop:** As it is a low risk solution, did not incorporate HITL.
+
 # Solution Architecture
    - Customer Review collection Interface
    - Review Analysis and classification
@@ -45,7 +57,7 @@ Figure 1: End-to-end Generative AI workflow architecture.
 Figure 2: Technology Stack.
 </em></p>
 
-# Exception Handling & Edge Cases
+# Exception Handling
 <p align="center">
   <img src="images/Exception_handling_strategy.png" width="800"/>
 </p>
@@ -89,6 +101,7 @@ Figure 5: Accuracy Evaluation Metrics.
 <p align="center"><em>
 Figure 6: Safety Evaluation Metrics.
 </em></p>     
+
    - Operations & Monitoring (using Langsmith and timestamp calculations)
          (LLM Ops - Metrics)
    
