@@ -139,4 +139,9 @@ Figure 7: LLMOps Evaluation Metrics.
 Figure 8: Tableau dashboard (drill-down).
 </em></p>
 
-  
+---
+
+# Disclaimer
+
+This repository demonstrates architecture and engineering practices for enterprise AI systems.  
+It does not contain proprietary data or confidential configurations.
