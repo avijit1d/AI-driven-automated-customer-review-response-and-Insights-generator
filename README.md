@@ -13,6 +13,9 @@ This project reflects architectural thinking around:
    - Workflow automation
    - Insight generation pipelines
    - Scalable inference design
+
+---
+
 # Problem Statement
 Organizations receive large volumes of customer reviews across platforms. Manually:
    - Analyzing sentiment
@@ -27,6 +30,8 @@ This solution automates:
    4. AI-generated response drafting
    5. Trend visualization
 
+---
+
 ## Generative AI Solution Design Considerations
 
 - **Model selection criteria:**    Selectd closed source models considering latency, accuracy, and domain relevance.
@@ -37,6 +42,8 @@ This solution automates:
 - **Deployment & scalability:**  Thought through cloud based or on-premise deployment and monitoring for reliable operation. Cost is a major factor.
 - **LLM Ops & lifecycle management:** Monitoring error rates, latency, and throughput needs.
 - **User feedback & human-in-the-loop:** As it is a low risk solution, did not incorporate HITL.
+
+---
 
 # Solution Architecture
    - Customer Review collection Interface
@@ -57,6 +64,8 @@ Figure 1: End-to-end Generative AI workflow architecture.
 Figure 2: Technology Stack.
 </em></p>
 
+---
+
 # Exception Handling
 <p align="center">
   <img src="images/Exception_handling_strategy.png" width="800"/>
@@ -65,12 +74,18 @@ Figure 2: Technology Stack.
 Figure 3: Exception handling considerations.
 </em></p>
 
+---
+
 # Simulation Interface - End-User /Customer Review
      1. Through N8N Form
      2. Through Postman Collection Runner
+
+---
      
 # Review Response Prompt Templates
    - Templates are stored in Redis Cache
+
+---
 
 # Workflows
    - LLM Driven Language Translation, Sentiment Analysis, Topic categorization, and Issue classification
@@ -83,6 +98,8 @@ Figure 3: Exception handling considerations.
 <p align="center"><em>
 Figure 4: N8N Workflow.
 </em></p>
+
+---
     
 # Evaluations strategy   
    - Accuracy (using LLM-as-judge) (Accuracy Metrics)     
@@ -111,6 +128,8 @@ Figure 6: Safety Evaluation Metrics.
 <p align="center"><em>
 Figure 7: LLMOps Evaluation Metrics.
 </em></p>
+
+---
    
 # Weekly Customer Sentiment Trend (Tableau Dashboard)
 <p align="center">
